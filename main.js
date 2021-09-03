@@ -44,37 +44,6 @@ class RfgridMap {
     this.y_tile_count = tile_count.y;
     
   }
-  updateTileCount(tc={x:this.x_tile_count,y:this.y_tile_count}){
-    this.x_tile_count = tc.x;
-    this.y_tile_count = tc.y;
-    this.geometry = new THREE.PlaneGeometry(100, 100, tc.x,tc.y);
-    this.texture = new THREE.TextureLoader().load(this.texture_path,
-      (tex) => {
-        this.geometry.needsUpdate = true;
-        this.geometry.scale(1.0, tex.image.height / tex.image.width, 1.0);
-        this.geometry.computeBoundingBox();
-        this.boundingBox = this.geometry.boundingBox;
-        this.map_width = (
-          Math.abs(this.geometry.boundingBox.min.x) + 
-          Math.abs(this.geometry.boundingBox.max.x)
-          );
-        this.map_height = (
-            Math.abs(this.geometry.boundingBox.min.y) + 
-            Math.abs(this.geometry.boundingBox.max.y)
-        );
-        this.tile_width = this.map_width / this.x_tile_count;
-        this.tile_height = this.map_height / this.y_tile_count;
-        this.mesh.material = this.material;
-        this.mesh.geometry = this.geometry;
-        this.mesh.position.x = (this.tile_width/2)*((this.x_tile_count%2));
-        this.mesh.position.y = (this.tile_width/2)*((this.y_tile_count%2));
-        console.log("map_width",this.map_width);
-        console.log("map_height",this.map_height);
-        console.log("image_width",tex.image.width);
-        console.log("image_height",tex.image.height);
-      });
-    this.material = new THREE.MeshBasicMaterial({map:this.texture,wireframe:false});
-  }
 };
 
 class RfgridMask {
@@ -97,10 +66,13 @@ class RfgridMask {
               Math.abs(this.geometry.boundingBox.max.y)
           );
           if(adjust_camera){
-            var vFOV = camera.fov * Math.PI / 180; 
-            let camera_pos = (this.map_height/8)/(2 * Math.tan( vFOV / 2 )); 
+            let play_area = 8;
+            let menu_area = 2;
+            let tile_margin = 1;
+            let vFOV = camera.fov * Math.PI / 180; 
+            let camera_pos = (this.map_height/10)*((menu_area+play_area+tile_margin*2)/play_area)/(2 * Math.tan( vFOV / 2 )); 
             camera.position.z = camera_pos;
-            camera.position.y = rfgrid_map.tile_width;
+            camera.position.y = rfgridmap.tile_width;
           }
         });
     this.material = new THREE.MeshStandardMaterial({alphaMap:this.texture,color:0x000000,transparent:true,opacity:0.75});
