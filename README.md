@@ -1,2 +1,2 @@
 # rfgrid3d
-a three.js implementation of rfgrid
+3D implementation of rfgrid using three.js
