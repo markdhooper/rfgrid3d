@@ -167,38 +167,14 @@ function setupKeyControls() {
 }
 
 function setupGui() {
-   let map_controls;
-   let mask_controls;
    const gui = new GUI();
-   // material (attributes)
-   map_controls = gui.addFolder( "map controls" );
-   map_controls.add(rfgrid_map.mesh.position, "z",0.0,100.0).listen();
-   map_controls.add(rfgrid_map.mesh.position, "x",-100,100).listen();
-   map_controls.add(rfgrid_map.mesh.position, "y",-100,100).listen();
-   var tile_count = {x:rfgrid_map.x_tile_count,y:rfgrid_map.y_tile_count};
-   
-   map_controls.add(tile_count,"x",1,100).step(1).name("x_tiles").onChange(
-    function(x_count) {
-      tile_count.x = x_count;
-      rfgrid_map.updateTileCount(tile_count);
-    });
+   let camera_controls;
+   camera_controls = gui.addFolder( "camera_position" );
+   camera_controls.add(camera.position,"z",10,200).step(1).listen();
+   camera_controls.add(camera.position,"x",-50,50).step(1).listen();
+   camera_controls.add(camera.position,"y",-50,50).step(1).listen();
+   camera_controls.open();
 
-    map_controls.add(tile_count,"y",1,100).step(1).name("y_tiles").onChange(
-      function(y_count) {
-        tile_count.y = y_count;
-        rfgrid_map.updateTileCount(tile_count);
-      });
-   map_controls.open();
-
-  mask_controls = gui.addFolder( "mask controls" );
-  mask_controls.add(rfgrid_mask.mesh.material, "wireframe",false).listen();
-  mask_controls.add(rfgrid_mask.mesh.material, "transparent").listen();
-  mask_controls.add(rfgrid_mask.mesh.material, "opacity",0.0,1.0).listen();
-  var conf = { color : '#ffffff' };    
-  mask_controls.addColor(conf, 'color').onChange( function(colorValue) {
-    rfgrid_mask.mesh.material.color.set(colorValue);
-  });
-  mask_controls.open();
 }
 
 
