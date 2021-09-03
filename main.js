@@ -4,7 +4,7 @@ import { GUI } from 'https://cdn.jsdelivr.net/npm/three@0.118.3/examples/jsm/lib
 
 let camera, scene, renderer;
 let lightPoint;
-let rfgrid_map, rfgrid_mask;
+let rfgrid_map, rfgrid_mask, rfgrid_menu_mask;
 const light = new THREE.AmbientLight( 0x404040 ); // soft white light
 
 
@@ -32,10 +32,6 @@ class RfgridMap {
           this.tile_height = this.map_height / this.y_tile_count;
           this.mesh.position.x = (this.tile_width/2)*((this.x_tile_count%2));
           this.mesh.position.y = (this.tile_width/2)*((this.y_tile_count%2));
-          console.log("map_width",this.map_width);
-          console.log("map_height",this.map_height);
-          console.log("image_width",tex.image.width);
-          console.log("image_height",tex.image.height);
           
         });
     this.material = new THREE.MeshBasicMaterial({map:this.texture,wireframe:false});
@@ -82,7 +78,7 @@ class RfgridMap {
 };
 
 class RfgridMask {
-  constructor(dim={w:10,h:10},texture_path,pos={x:0,y:0,z:0},tile_count={x:10,y:10},rfgridmap){
+  constructor(dim={w:10,h:10},texture_path,pos={x:0,y:0,z:0},tile_count={x:10,y:10},rfgridmap,adjust_camera){
     this.geometry = new THREE.PlaneGeometry(dim.w, dim.h, tile_count.x,tile_count.y);
     this.texture_path = texture_path;
     this.texture = new THREE.TextureLoader().load(this.texture_path,
@@ -100,14 +96,12 @@ class RfgridMask {
               Math.abs(this.geometry.boundingBox.min.y) + 
               Math.abs(this.geometry.boundingBox.max.y)
           );
-          console.log("map_width",this.map_width);
-          console.log("map_height",this.map_height);
-          console.log("image_width",tex.image.width);
-          console.log("image_height",tex.image.height);
-          var vFOV = camera.fov * Math.PI / 180; 
-          let camera_pos = (this.map_height/8)/(2 * Math.tan( vFOV / 2 )); 
-          console.log(camera_pos);
-          camera.position.z = camera_pos;
+          if(adjust_camera){
+            var vFOV = camera.fov * Math.PI / 180; 
+            let camera_pos = (this.map_height/8)/(2 * Math.tan( vFOV / 2 )); 
+            camera.position.z = camera_pos;
+            camera.position.y = rfgrid_map.tile_width;
+          }
         });
     this.material = new THREE.MeshStandardMaterial({alphaMap:this.texture,color:0x000000,transparent:true,opacity:0.75});
     this.mesh = new THREE.Mesh(this.geometry,this.material);
@@ -209,8 +203,11 @@ function init() {
   rfgrid_map = new RfgridMap(map_dim,game_maps[map_select].texture_path,map_pos,game_maps[map_select].tile_count);
   scene.add( rfgrid_map.mesh );
   scene.add( light );
-  rfgrid_mask = new RfgridMask(map_dim,"resources/textures/squareMask.png",map_pos,game_maps[map_select].tile_count,rfgrid_map);
+  rfgrid_mask = new RfgridMask(map_dim,"resources/textures/squareMask.png",map_pos,game_maps[map_select].tile_count,rfgrid_map,true);
   scene.add( rfgrid_mask.mesh );
+  //rfgrid_menu_mask = new RfgridMask(map_dim,"resources/textures/menuMask.png",map_pos,game_maps[map_select].tile_count,rfgrid_map,false);
+  //scene.add( rfgrid_menu_mask.mesh );
+
   setupGui();
   
   renderer = new THREE.WebGLRenderer( { antialias: true } );
